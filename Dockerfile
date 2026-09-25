@@ -1,7 +1,7 @@
 # Build: docker build -t easytech3d-commerce .
 #
-# One image, two Railway services: `medusa` (MEDUSA_WORKER_MODE=server, runs `medusa db:migrate`
-# as its pre-deploy step) and `medusa-worker` (MEDUSA_WORKER_MODE=worker, DISABLE_MEDUSA_ADMIN=true).
+# One image, two Railway services: `medusa` (MEDUSA_WORKER_MODE=server, pre-deploy `npm run predeploy`:
+# migrations + admin invite bootstrap) and `medusa-worker` (MEDUSA_WORKER_MODE=worker, DISABLE_MEDUSA_ADMIN=true).
 
 # ---------- build ----------
 FROM node:22-bookworm-slim AS build
@@ -19,6 +19,8 @@ RUN pnpm build
 # ---------- runner ----------
 FROM node:22-bookworm-slim AS runner
 ENV NODE_ENV=production
+# medusa CLI on PATH for CMD and the pre-deploy `npm run predeploy` (migrate + bootstrap-admin).
+ENV PATH=/app/node_modules/.bin:$PATH
 WORKDIR /app
 
 # `medusa build` emits .medusa/server (compiled backend + admin in public/admin) without a lockfile;
@@ -28,4 +30,4 @@ COPY --from=build /app/.medusa/server ./.medusa/server
 
 WORKDIR /app/.medusa/server
 EXPOSE 9000
-CMD ["/app/node_modules/.bin/medusa", "start"]
+CMD ["medusa", "start"]

@@ -27,8 +27,14 @@ One Docker image, two services sharing Postgres + Redis:
 
 | service | env | notes |
 |---|---|---|
-| `medusa` | `MEDUSA_WORKER_MODE=server` | API + admin; pre-deploy `medusa db:migrate`; healthcheck `/health` |
+| `medusa` | `MEDUSA_WORKER_MODE=server` | API + admin; pre-deploy `npm run predeploy` (migrate + admin invite); healthcheck `/health` |
 | `medusa-worker` | `MEDUSA_WORKER_MODE=worker`, `DISABLE_MEDUSA_ADMIN=true` | subscribers, scheduled jobs, workflows |
 
 Both need `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `COOKIE_SECRET`; the server also needs
 `STORE_CORS`, `ADMIN_CORS`, `AUTH_CORS` and `MEDUSA_BACKEND_URL`.
+
+## First admin
+
+Set `ADMIN_INVITE_EMAIL` on the `medusa` service. While no admin exists, every deploy logs an
+invite link (`bootstrap-admin: accept the admin invite at …`) from the pre-deploy step; open it
+and choose a password. After that the step is a no-op.

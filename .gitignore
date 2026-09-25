@@ -1,0 +1,22 @@
+/dist
+.env
+.DS_Store
+/uploads
+/node_modules
+
+.idea
+
+coverage
+
+!src/**
+
+./tsconfig.tsbuildinfo
+medusa-db.sql
+build
+.cache
+
+
+.medusa
+
+# Local pnpm 11 settings (hoisting + build allow-list); the Docker build uses pnpm 9 + .npmrc.
+pnpm-workspace.yaml

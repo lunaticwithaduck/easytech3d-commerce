@@ -1,0 +1,7 @@
+node_modules
+.medusa
+.env
+.env.*
+!.env.template
+pnpm-workspace.yaml
+uploads

@@ -24,42 +24,66 @@ module.exports = defineConfig({
     disable: process.env.DISABLE_MEDUSA_ADMIN === 'true',
     backendUrl: process.env.MEDUSA_BACKEND_URL,
   },
-  modules: REDIS_URL
-    ? [
-        {
-          resolve: '@medusajs/medusa/caching',
-          options: {
-            providers: [
-              {
-                resolve: '@medusajs/caching-redis',
-                id: 'caching-redis',
-                is_default: true,
-                options: { redisUrl: REDIS_URL },
-              },
-            ],
+  modules: [
+    // Couriers (Econt, Speedy) alongside the default manual provider - the manager's store
+    // import creates shipping options on `manual`, so it stays registered. See
+    // contracts/medusa-storefront.md ("Courier offices") and src/modules/{econt,speedy}.
+    {
+      resolve: '@medusajs/medusa/fulfillment',
+      options: {
+        providers: [
+          {
+            resolve: '@medusajs/medusa/fulfillment-manual',
+            id: 'manual',
           },
-        },
-        {
-          resolve: '@medusajs/medusa/event-bus-redis',
-          options: { redisUrl: REDIS_URL },
-        },
-        {
-          resolve: '@medusajs/medusa/workflow-engine-redis',
-          options: { redis: { redisUrl: REDIS_URL } },
-        },
-        {
-          resolve: '@medusajs/medusa/locking',
-          options: {
-            providers: [
-              {
-                resolve: '@medusajs/medusa/locking-redis',
-                id: 'locking-redis',
-                is_default: true,
-                options: { redisUrl: REDIS_URL },
-              },
-            ],
+          {
+            resolve: './src/modules/econt',
+            id: 'econt',
           },
-        },
-      ]
-    : [],
+          {
+            resolve: './src/modules/speedy',
+            id: 'speedy',
+          },
+        ],
+      },
+    },
+    ...(REDIS_URL
+      ? [
+          {
+            resolve: '@medusajs/medusa/caching',
+            options: {
+              providers: [
+                {
+                  resolve: '@medusajs/caching-redis',
+                  id: 'caching-redis',
+                  is_default: true,
+                  options: { redisUrl: REDIS_URL },
+                },
+              ],
+            },
+          },
+          {
+            resolve: '@medusajs/medusa/event-bus-redis',
+            options: { redisUrl: REDIS_URL },
+          },
+          {
+            resolve: '@medusajs/medusa/workflow-engine-redis',
+            options: { redis: { redisUrl: REDIS_URL } },
+          },
+          {
+            resolve: '@medusajs/medusa/locking',
+            options: {
+              providers: [
+                {
+                  resolve: '@medusajs/medusa/locking-redis',
+                  id: 'locking-redis',
+                  is_default: true,
+                  options: { redisUrl: REDIS_URL },
+                },
+              ],
+            },
+          },
+        ]
+      : []),
+  ],
 })
